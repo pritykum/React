@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './NeighborModule.css';
 import { AutoComplete } from 'primereact/autocomplete';
+import LTEtoLTE from "../components/Shared/KairosGroups/LTEtoLTE";
+import NRtoNR from "../components/Shared/KairosGroups/NRtoNR";
+import LTEtoNR from "../components/Shared/KairosGroups/LTEtoNR";
+
 
 const NeighborModule: React.FC = () => {
 const [selectedTab, setSelectedTab] = useState<string>('5G-5G');
@@ -10,6 +14,10 @@ const [siteName, setSiteName] = useState<string>('');
 const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
 const [tabHtml, setTabHtml] = useState<{ [key: string]: string }>({});
 const [isLoading, setIsLoading] = useState<boolean>(false);
+const [submittedSite, setSubmittedSite] = useState<string>('');
+const [submittedDate, setSubmittedDate] = useState<string>('');
+const [submitted, setSubmitted] = useState<boolean>(false);
+
 
   // Example static site list — replace with API results if needed
   const siteList = ['4BGS014A', '5TC0614A', '5TC0702A', '7NYR098B', '8LKA123A'];
@@ -29,6 +37,7 @@ const [isLoading, setIsLoading] = useState<boolean>(false);
     }
 
     setIsLoading(true);
+    setSubmitted(false);
 
     try {
       const [res5g5g, res4g5g, res4g4g] = await Promise.all([
@@ -48,6 +57,9 @@ const [isLoading, setIsLoading] = useState<boolean>(false);
         '4G-5G': res4g5g.data.html_result || '<p>Error loading 4G-5G data.</p>',
         '4G-4G': res4g4g.data.html_result || '<p>Error loading 4G-4G data.</p>',
       });
+      setSubmittedSite(siteName);
+      setSubmittedDate(date);
+      setSubmitted(true);
     } catch (error) {
       console.error('Error fetching neighbor audit data:', error);
       alert('Error fetching data. See console for details.');
@@ -99,11 +111,19 @@ const [isLoading, setIsLoading] = useState<boolean>(false);
       </div>
 
       <div className="result-box">
-        {!siteName ? (
-          <div className="no-site">Select any site from above menu to see result</div>
-        ) : isLoading ? (
+        {!submitted ? (
+          <div className="no-site">Please select a site and date, then click Submit to see results.</div> 
+        ): isLoading ? (
           <div className="loading">Loading data...</div>
+        ) : selectedTab === '5G-5G' ? (
+            <NRtoNR site={submittedSite} date={submittedDate} html={tabHtml['5G-5G']} />
+        ) : selectedTab === '4G-5G' ? (
+            <LTEtoNR site={submittedSite} date={submittedDate} html={tabHtml['4G-5G']} />
+        ) : selectedTab === '4G-4G' ? (
+            <LTEtoLTE site={submittedSite} date={submittedDate} html={tabHtml['4G-4G']} />
+       
         ) : (
+        
           <div
             className="results"
             dangerouslySetInnerHTML={{ __html: tabHtml[selectedTab] || '<p>No data loaded.</p>' }}
