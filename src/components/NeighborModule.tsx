@@ -1,13 +1,26 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './NeighborModule.css';
+import { AutoComplete } from 'primereact/autocomplete';
 
 const NeighborModule: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState<string>('5G-5G');
-  const [siteName, setSiteName] = useState<string>('');
-  const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [tabHtml, setTabHtml] = useState<{ [key: string]: string }>({});
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+const [selectedTab, setSelectedTab] = useState<string>('5G-5G');
+const [filteredSites, setFilteredSites] = useState<string[]>([]);
+const [siteName, setSiteName] = useState<string>('');
+const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
+const [tabHtml, setTabHtml] = useState<{ [key: string]: string }>({});
+const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Example static site list — replace with API results if needed
+  const siteList = ['4BGS014A', '5TC0614A', '5TC0702A', '7NYR098B', '8LKA123A'];
+
+  const searchSite = (event: { query: string }) => {
+    const query = event.query.toLowerCase();
+    const filtered = siteList.filter(site =>
+      site.toLowerCase().includes(query)
+    );
+    setFilteredSites(filtered);
+  };
 
   const handleSubmit = async () => {
     if (!siteName || !date) {
@@ -46,12 +59,15 @@ const NeighborModule: React.FC = () => {
   return (
     <div className="neighbor-container">
       <div className="top-bar">
-        <label>Site: </label>
-        <input
-          type="text"
-          placeholder="Start typing..."
+        <label htmlFor="site">Site: </label>
+        <AutoComplete
+          inputId="site"
           value={siteName}
-          onChange={(e) => setSiteName(e.target.value)}
+          suggestions={filteredSites}
+          completeMethod={searchSite}
+          onChange={(e) => setSiteName(e.value)}
+          placeholder="Start typing..."
+          dropdown
         />
 
         <label>Date: </label>
