@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect }from 'react';
 import axios from 'axios';
 import './NeighborModule.css';
 import { AutoComplete } from 'primereact/autocomplete';
@@ -7,9 +7,11 @@ import NRtoNR from "../components/Shared/KairosGroups/NRtoNR";
 import LTEtoNR from "../components/Shared/KairosGroups/LTEtoNR";
 
 
+
 const NeighborModule: React.FC = () => {
 const [selectedTab, setSelectedTab] = useState<string>('5G-5G');
 const [filteredSites, setFilteredSites] = useState<string[]>([]);
+const [siteList, setSiteList] = useState<string[]>([]); // <-- NEW
 const [siteName, setSiteName] = useState<string>('');
 const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
 const [tabHtml, setTabHtml] = useState<{ [key: string]: string }>({});
@@ -20,13 +22,24 @@ const [submitted, setSubmitted] = useState<boolean>(false);
 
 
   // Example static site list — replace with API results if needed
-  const siteList = ['4BGS014A', '5TC0614A', '5TC0702A', '7NYR098B', '8LKA123A'];
+// const siteList = ['4BGS014A', '5TC0614A', '5TC0702A', '7NYR098B', '8LKA123A'];
+
+useEffect(() => {
+  console.log("useEffect triggered");
+  axios.get('/api/sites')
+    .then((res) => {
+      const sites = res.data.site_list.map((site: { site_name: string }) => site.site_name);
+      console.log("API response:", res.data);
+      setSiteList(sites);
+    })
+    .catch((err) => {
+      console.error('Error fetching site list:', err);
+    });
+}, []);
 
   const searchSite = (event: { query: string }) => {
     const query = event.query.toLowerCase();
-    const filtered = siteList.filter(site =>
-      site.toLowerCase().includes(query)
-    );
+    const filtered = siteList.filter(site =>site.toLowerCase().includes(query));
     setFilteredSites(filtered);
   };
 
@@ -80,6 +93,8 @@ const [submitted, setSubmitted] = useState<boolean>(false);
           onChange={(e) => setSiteName(e.value)}
           placeholder="Start typing..."
           dropdown
+          virtualScrollerOptions={{ itemSize: 30 }}
+          
         />
 
         <label>Date: </label>

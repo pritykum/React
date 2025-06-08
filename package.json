@@ -16,12 +16,14 @@
     "datatables.net-fixedcolumns": "^5.0.4",
     "datatables.net-fixedheader": "^4.0.2",
     "jquery": "^3.7.1",
+    "lodash": "^4.17.21",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.6",
     "react": "^19.1.0",
     "react-csv": "^2.2.2",
     "react-data-table-component": "^7.7.0",
     "react-dom": "^19.1.0",
+    "react-window": "^1.8.11",
     "saas": "^1.0.0"
   },
   "devDependencies": {
