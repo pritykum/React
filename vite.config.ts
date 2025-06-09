@@ -5,8 +5,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // Forward /api requests to Flask backend running on port 5000
+      // Proxy /api to Flask
       '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+      },
+      // Proxy any path that contains /neighbor-module
+      '^.*\\/neighbor-module.*$': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,

@@ -3,34 +3,34 @@ import React from 'react';
 interface NRtoNRProps {
   site: string;
   date: string;
-  html?: string; 
+  data?: any[];
 }
 
-const NRtoNR: React.FC<NRtoNRProps> = ({ site, date, html }) => {
-  const columns = ['Cell', 'Neighbor', 'Distance', 'RSRP', 'RSRQ', 'PCI', 'EARFCN'];
+const NRtoNR: React.FC<NRtoNRProps> = ({ site, date, data = [] }) => {
+  const columns = data.length > 0 ? Object.keys(data[0]) : [];
 
   return (
     <div className="lte-to-lte-results">
       <h4>5G-5G Neighbors for Site: <strong>{site}</strong> on <strong>{date}</strong></h4>
-      {html && html.trim() !== '' ? (
-        <div dangerouslySetInnerHTML={{ __html: html }} />
-      ) : (
+      {columns.length > 0 ? (
         <table className="table table-bordered table-sm">
           <thead>
             <tr>
-              {columns.map((col) => (
-                <th key={col}>{col}</th>
-              ))}
+              {columns.map(col => <th key={col}>{col}</th>)}
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td colSpan={columns.length} style={{ textAlign: 'center', color: 'gray' }}>
-                No neighbor data available
-              </td>
-            </tr>
+            {data.map((row, idx) => (
+              <tr key={idx}>
+                {columns.map(col => (
+                  <td key={col}>{row[col]}</td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
+      ) : (
+        <p style={{ color: 'gray' }}>No neighbor data available</p>
       )}
     </div>
   );

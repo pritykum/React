@@ -7,19 +7,18 @@ import NRtoNR from "../components/Shared/KairosGroups/NRtoNR";
 import LTEtoNR from "../components/Shared/KairosGroups/LTEtoNR";
 
 
-
 const NeighborModule: React.FC = () => {
 const [selectedTab, setSelectedTab] = useState<string>('5G-5G');
 const [filteredSites, setFilteredSites] = useState<string[]>([]);
 const [siteList, setSiteList] = useState<string[]>([]); // <-- NEW
 const [siteName, setSiteName] = useState<string>('');
 const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
-const [tabHtml, setTabHtml] = useState<{ [key: string]: string }>({});
+const [tabHtml, setTabHtml] = useState<{ [key: string]: any[] }>({});
 const [isLoading, setIsLoading] = useState<boolean>(false);
 const [submittedSite, setSubmittedSite] = useState<string>('');
 const [submittedDate, setSubmittedDate] = useState<string>('');
 const [submitted, setSubmitted] = useState<boolean>(false);
-
+const [apiPrefix, setApiPrefix] = useState<string>(''); 
 
   // Example static site list — replace with API results if needed
 // const siteList = ['4BGS014A', '5TC0614A', '5TC0702A', '7NYR098B', '8LKA123A'];
@@ -28,15 +27,31 @@ useEffect(() => {
   console.log("useEffect triggered");
   axios.get('/api/sites')
     .then((res) => {
-      const sites = res.data.site_list.map((site: { site_name: string }) => site.site_name);
+      // const sites = res.data.site_list.map((site: { site_name: string }) => site.site_name);
+      const sites = res.data.site_list;
       console.log("API response:", res.data);
+      console.time("setSiteList");
       setSiteList(sites);
+      console.timeEnd("setSiteList");
     })
     .catch((err) => {
-      console.error('Error fetching site list:', err);
+      console.error("Error fetching site list: ", err.message);
+      console.error(err.response?.status); // Might give 404, 500 etc.
+      console.error(err.response?.data);  
     });
 }, []);
 
+ useEffect(() => {
+    console.log("useEffect triggered for config");
+    axios.get('/api/get_config')
+      .then((res) => {
+        setApiPrefix(res.data.endpoint_addon || '');
+        console.log("endpoint_addon:", res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching config:", err.message);
+      });
+  }, []);
   const searchSite = (event: { query: string }) => {
     const query = event.query.toLowerCase();
     const filtered = siteList.filter(site =>site.toLowerCase().includes(query));
@@ -54,28 +69,28 @@ useEffect(() => {
 
     try {
       const [res5g5g, res4g5g, res4g4g] = await Promise.all([
-        axios.get('/api/neighborAudit/nrTonr', {
+        axios.get(`${apiPrefix}/api/neighborAudit/nrTonr`, {
           params: { selected_site: siteName, raml_date: date },
         }),
-        axios.get('/api/neighborAudit/lteTonr', {
+        axios.get(`${apiPrefix}/api/neighborAudit/lteTonr`, {
           params: { selected_site: siteName, raml_date: date },
         }),
-        axios.get('/api/neighborAudit/ltetolte', {
+        axios.get(`${apiPrefix}/api/neighborAudit/ltetolte`, {
           params: { selected_site: siteName, raml_date: date },
         }),
       ]);
 
       setTabHtml({
-        '5G-5G': res5g5g.data.html_result || '<p>Error loading 5G-5G data.</p>',
-        '4G-5G': res4g5g.data.html_result || '<p>Error loading 4G-5G data.</p>',
-        '4G-4G': res4g4g.data.html_result || '<p>Error loading 4G-4G data.</p>',
+        '5G-5G': res5g5g.data.nrTonr || [],
+        '4G-5G': res4g5g.data.lteTonr || [],
+        '4G-4G': res4g4g.data.ltetTolte || [],
       });
       setSubmittedSite(siteName);
       setSubmittedDate(date);
       setSubmitted(true);
     } catch (error) {
       console.error('Error fetching neighbor audit data:', error);
-      alert('Error fetching data. See console for details.');
+      // alert('Error fetching data. See console for details.');
     } finally {
       setIsLoading(false);
     }
@@ -126,25 +141,24 @@ useEffect(() => {
       </div>
 
       <div className="result-box">
-        {!submitted ? (
-          <div className="no-site">Please select a site and date, then click Submit to see results.</div> 
-        ): isLoading ? (
-          <div className="loading">Loading data...</div>
+        {!submitted && !isLoading ? (
+          <div className="no-site">Please select a site and date, then click Submit to see results.</div>
+        ) : isLoading ? (
+          <div className="spinner-container">
+            <div className="spinner"></div>
+            <p>Loading data...</p>
+          </div>
         ) : selectedTab === '5G-5G' ? (
-            <NRtoNR site={submittedSite} date={submittedDate} html={tabHtml['5G-5G']} />
+          <NRtoNR site={submittedSite} date={submittedDate} data={tabHtml['5G-5G']} />
         ) : selectedTab === '4G-5G' ? (
-            <LTEtoNR site={submittedSite} date={submittedDate} html={tabHtml['4G-5G']} />
+          <LTEtoNR site={submittedSite} date={submittedDate} data={tabHtml['4G-5G']} />
         ) : selectedTab === '4G-4G' ? (
-            <LTEtoLTE site={submittedSite} date={submittedDate} html={tabHtml['4G-4G']} />
-       
+          <LTEtoLTE site={submittedSite} date={submittedDate} data={tabHtml['4G-4G']} />
         ) : (
-        
-          <div
-            className="results"
-            dangerouslySetInnerHTML={{ __html: tabHtml[selectedTab] || '<p>No data loaded.</p>' }}
-          />
+          <div className="results" dangerouslySetInnerHTML={{ __html: tabHtml[selectedTab] || '<p>No data loaded.</p>' }} />
         )}
       </div>
+
     </div>
   );
 };
