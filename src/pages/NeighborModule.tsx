@@ -13,7 +13,13 @@ const [filteredSites, setFilteredSites] = useState<string[]>([]);
 const [siteList, setSiteList] = useState<string[]>([]); // <-- NEW
 const [siteName, setSiteName] = useState<string>('');
 const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
-const [tabHtml, setTabHtml] = useState<{ [key: string]: any[] }>({});
+// const [tabHtml, setTabHtml] = useState<{ [key: string]: any[] }>({});
+const [tabHtml, setTabHtml] = useState<{
+  [key: string]: {
+    columns: string[];
+    data: any[];
+  };
+}>({});
 const [isLoading, setIsLoading] = useState<boolean>(false);
 const [submittedSite, setSubmittedSite] = useState<string>('');
 const [submittedDate, setSubmittedDate] = useState<string>('');
@@ -23,38 +29,30 @@ const [apiPrefix, setApiPrefix] = useState<string>('');
   // Example static site list — replace with API results if needed
 // const siteList = ['4BGS014A', '5TC0614A', '5TC0702A', '7NYR098B', '8LKA123A'];
 
-useEffect(() => {
-  console.log("useEffect triggered");
-  axios.get('/api/sites')
-    .then((res) => {
-      // const sites = res.data.site_list.map((site: { site_name: string }) => site.site_name);
-      const sites = res.data.site_list;
-      console.log("API response:", res.data);
-      console.time("setSiteList");
-      setSiteList(sites);
-      console.timeEnd("setSiteList");
-    })
-    .catch((err) => {
-      console.error("Error fetching site list: ", err.message);
-      console.error(err.response?.status); // Might give 404, 500 etc.
-      console.error(err.response?.data);  
-    });
-}, []);
-
  useEffect(() => {
-    console.log("useEffect triggered for config");
+    axios.get('/api/sites')
+      .then((res) => {
+        const sites = res.data.site_list;
+        setSiteList(sites);
+      })
+      .catch((err) => {
+        console.error("Error fetching site list: ", err.message);
+      });
+  }, []);
+
+  useEffect(() => {
     axios.get('/api/get_config')
       .then((res) => {
         setApiPrefix(res.data.endpoint_addon || '');
-        console.log("endpoint_addon:", res.data);
       })
       .catch((err) => {
         console.error("Error fetching config:", err.message);
       });
   }, []);
+
   const searchSite = (event: { query: string }) => {
     const query = event.query.toLowerCase();
-    const filtered = siteList.filter(site =>site.toLowerCase().includes(query));
+    const filtered = siteList.filter(site => site.toLowerCase().includes(query));
     setFilteredSites(filtered);
   };
 
@@ -81,16 +79,25 @@ useEffect(() => {
       ]);
 
       setTabHtml({
-        '5G-5G': res5g5g.data.nrTonr || [],
-        '4G-5G': res4g5g.data.lteTonr || [],
-        '4G-4G': res4g4g.data.ltetTolte || [],
+        '5G-5G': {
+          columns: res5g5g.data.columns || [],
+          data: res5g5g.data.data || [],
+        },
+        '4G-5G': {
+          columns: res4g5g.data.columns || [],
+          data: res4g5g.data.data || [],
+        },
+        '4G-4G': {
+          columns: res4g4g.data.columns || [],
+          data: res4g4g.data.data || [],
+        },
       });
+
       setSubmittedSite(siteName);
       setSubmittedDate(date);
       setSubmitted(true);
     } catch (error) {
       console.error('Error fetching neighbor audit data:', error);
-      // alert('Error fetching data. See console for details.');
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +116,6 @@ useEffect(() => {
           placeholder="Start typing..."
           dropdown
           virtualScrollerOptions={{ itemSize: 30 }}
-          
         />
 
         <label>Date: </label>
@@ -155,10 +161,9 @@ useEffect(() => {
         ) : selectedTab === '4G-4G' ? (
           <LTEtoLTE site={submittedSite} date={submittedDate} data={tabHtml['4G-4G']} />
         ) : (
-          <div className="results" dangerouslySetInnerHTML={{ __html: tabHtml[selectedTab] || '<p>No data loaded.</p>' }} />
+          <div className="results" dangerouslySetInnerHTML={{ __html: '<p>No data loaded.</p>' }} />
         )}
       </div>
-
     </div>
   );
 };

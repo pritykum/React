@@ -3,24 +3,29 @@ import React from 'react';
 interface LTEtoLTEProps {
   site: string;
   date: string;
-   data?: any[];
+  data: {
+    columns: string[];
+    data: any[];
+  };
 }
 
-const LTEtoLTE: React.FC<LTEtoLTEProps> = ({ site, date, data = [] }) => {
-  const columns = data.length > 0 ? Object.keys(data[0]) : [];
+const LTEtoLTE: React.FC<LTEtoLTEProps> = ({ data }) => {
+  const columns = data?.columns || [];
+  const rows = data?.data || [];
 
   return (
-    <div className="lte-to-nr-results">
-      <h4>5G-5G Neighbors for Site: <strong>{site}</strong> on <strong>{date}</strong></h4>
+    <div className="lte-to-lte-results">
       {columns.length > 0 ? (
         <table className="table table-bordered table-sm">
           <thead>
             <tr>
-              {columns.map(col => <th key={col}>{col}</th>)}
+              {columns.map(col => (
+                <th key={col}>{col}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {data.map((row, idx) => (
+            {rows.map((row, idx) => (
               <tr key={idx}>
                 {columns.map(col => (
                   <td key={col}>{row[col]}</td>
@@ -35,6 +40,5 @@ const LTEtoLTE: React.FC<LTEtoLTEProps> = ({ site, date, data = [] }) => {
     </div>
   );
 };
-
 
 export default LTEtoLTE;
