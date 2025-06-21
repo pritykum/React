@@ -77,7 +77,7 @@ const [apiPrefix, setApiPrefix] = useState<string>('');
           params: { selected_site: siteName, raml_date: date },
         }),
       ]);
-
+   
       setTabHtml({
         '5G-5G': {
           columns: res5g5g.data.columns || [],
