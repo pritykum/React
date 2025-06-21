@@ -1,4 +1,4 @@
-import './pages/NeighborModule.css';
+import './pages/NeighborModule.scss';
 import NeighborModule from './pages/NeighborModule';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.min.css';

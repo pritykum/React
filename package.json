@@ -12,10 +12,13 @@
   "dependencies": {
     "axios": "^1.9.0",
     "datatables.net": "^2.3.2",
+    "datatables.net-buttons": "^3.2.3",
     "datatables.net-dt": "^2.3.2",
     "datatables.net-fixedcolumns": "^5.0.4",
     "datatables.net-fixedheader": "^4.0.2",
+    "datatables.net-responsive-dt": "^3.0.4",
     "jquery": "^3.7.1",
+    "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.6",

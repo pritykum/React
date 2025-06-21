@@ -1,8 +1,9 @@
 .neighbor-container {
-  padding: 10px;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom, #9cc9e3, #f0f0f0);
-  border-radius: 10px;
+  padding: 10px !important;
+  font-family: Arial, sans-serif !important;
+  background: linear-gradient(to bottom, #9cc9e3, #f0f0f0) !important;
+  border-radius: 10px !important;
+  overflow-x: hidden; /* prevents table overflow affecting layout */
 }
 
 .top-bar {
@@ -60,8 +61,12 @@
   color: black;
 }
 
+
 .result-box {
   padding: 20px;
+  background: white; /* ensures clean table background */
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
 .no-site {
@@ -97,4 +102,24 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+.scroll-container {
+  max-height: 500px;
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+}
+
+.table {
+  min-width: 1000px; /* Ensure wide tables can scroll horizontally */
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  white-space: nowrap;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
 }

@@ -16,26 +16,28 @@ const LTEtoNR: React.FC<LTEtoNRProps> = ({ data }) => {
   return (
     <div className="lte-to-nr-results">
       {columns.length > 0 ? (
-        <table className="table table-bordered table-sm">
-          <thead>
-            <tr>
-              {columns.map(col => <th key={col}>{col}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {rowData.map((row, idx) => (
-              <tr key={idx}>
-                {columns.map(col => (
-                  <td key={col}>{row[col]}</td>
-                ))}
+        <div className="scroll-container">
+          <table className="table table-bordered table-sm">
+            <thead>
+              <tr>
+                {columns.map(col => <th key={col}>{col}</th>)}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p style={{ color: 'gray' }}>No neighbor data available</p>
-      )}
-    </div>
+            </thead>
+            <tbody>
+              {rowData.map((row, idx) => (
+                <tr key={idx}>
+                  {columns.map(col => (
+                    <td key={col}>{row[col]}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        ) : (
+          <p style={{ color: 'gray' }}>No neighbor data available</p>
+        )}
+      </div>
   );
 };
 

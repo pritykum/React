@@ -1,6 +1,6 @@
 import React, { useState, useEffect }from 'react';
 import axios from 'axios';
-import './NeighborModule.css';
+import './NeighborModule.scss';
 import { AutoComplete } from 'primereact/autocomplete';
 import LTEtoLTE from "../components/Shared/KairosGroups/LTEtoLTE";
 import NRtoNR from "../components/Shared/KairosGroups/NRtoNR";
