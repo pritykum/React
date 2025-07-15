@@ -5,6 +5,8 @@ import { AutoComplete } from 'primereact/autocomplete';
 import LTEtoLTE from "../components/Shared/KairosGroups/LTEtoLTE";
 import NRtoNR from "../components/Shared/KairosGroups/NRtoNR";
 import LTEtoNR from "../components/Shared/KairosGroups/LTEtoNR";
+import LookAndFeelSidebar from "../components/Utilities/LookAndFeelSidebar";
+
 
 
 const NeighborModule: React.FC = () => {
@@ -40,15 +42,28 @@ const [apiPrefix, setApiPrefix] = useState<string>('');
       });
   }, []);
 
+  // useEffect(() => {
+  //   axios.get('/api/get_config')
+  //     .then((res) => {
+  //       setApiPrefix(res.data.endpoint_addon || '');
+  //     })
+  //     .catch((err) => {
+  //       console.error("Error fetching config:", err.message);
+  //     });
+  // }, []);
   useEffect(() => {
-    axios.get('/api/get_config')
-      .then((res) => {
-        setApiPrefix(res.data.endpoint_addon || '');
-      })
-      .catch((err) => {
-        console.error("Error fetching config:", err.message);
-      });
-  }, []);
+  axios.get('/api/get_config')
+    .then((res) => {
+      // prepend host + port for local dev
+      const basePath = res.data.endpoint_addon || '';
+      const backendHost = 'http://localhost:5000';  // or from environment variable
+      setApiPrefix(`${backendHost}${basePath}`);
+    })
+    .catch((err) => {
+      console.error("Error fetching config:", err.message);
+    });
+}, []);
+
 
   const searchSite = (event: { query: string }) => {
     const query = event.query.toLowerCase();
@@ -132,6 +147,10 @@ const [apiPrefix, setApiPrefix] = useState<string>('');
         <span className="cm-date">
           CM & PM Date: <strong>{new Date(date).toLocaleDateString()}</strong>
         </span>
+        <div className="theme-toggle-container">
+          <LookAndFeelSidebar side="right" />
+        </div>
+        
       </div>
 
       <div className="tab-bar">

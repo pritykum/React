@@ -1,12 +1,19 @@
 import './pages/NeighborModule.scss';
 import NeighborModule from './pages/NeighborModule';
-import 'primereact/resources/themes/lara-light-indigo/theme.css';
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
+// import 'primereact/resources/primereact.min.css';
+// import 'primeicons/primeicons.css';
+import { PrimeReactProvider } from 'primereact/api';
+// import LookAndFeelSidebar from './components/Utilities/LookAndFeelSidebar';
+
+
+
 
 function App() {
   return (
-    <NeighborModule />
+    <PrimeReactProvider>
+      {/* <LookAndFeelSidebar side="right" /> */}
+      <NeighborModule />
+    </PrimeReactProvider>
    );
 }
 export default App;
