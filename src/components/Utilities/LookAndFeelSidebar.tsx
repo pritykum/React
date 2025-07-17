@@ -15,8 +15,7 @@ const LookAndFeelSidebar: React.FC<LookAndFeelSidebarProps> = ({side}) => {
     const [lookAndFeelSidebarVisible, setLookAndFeelSidebarVisible] = useState<boolean>(false);
 
     // Current theme path
-    const storedPath = localStorage.getItem('app-theme-path') || 'nokia-light';
-    const [currentPath, setCurrentPath] = useState(storedPath);
+    const [currentPath, setCurrentPath] = useState('nokia-light');
 
     // Selected theme
     const [selectedTheme, setSelectedTheme] = useState(null);
@@ -84,26 +83,27 @@ const LookAndFeelSidebar: React.FC<LookAndFeelSidebarProps> = ({side}) => {
     const { changeTheme } = React.useContext(PrimeReactContext);
 
     // Load initial theme from localStorage or system preference on mount
-    // 
-   useEffect(() => {
-  const stored = localStorage.getItem('app-theme-path') || 'nokia-light';
+    useEffect(() => {
 
-  if (!changeTheme) {
-    console.error("PrimeReact changeTheme function not available.");
-    return;
-  }
+        const storedPath = localStorage.getItem('app-theme-path');
 
-  if (stored !== currentPath) {
-    changeTheme(`themes/${currentPath}/theme.css`, `themes/${stored}/theme.css`, 'theme-link', () => {
-      setCurrentPath(stored);
-    });
-  } else {
-    // Ensure theme is applied even if stored === currentPath
-    changeTheme(`themes/${stored}/theme.css`, `themes/${stored}/theme.css`, 'theme-link', () => {});
-  }
-}, [changeTheme]);
+        if (!changeTheme) {
+            console.error("PrimeReact changeTheme function is not available. Ensure PrimeReactProvider is used.");
+            return;
+        }
 
+        if (storedPath) {
+            // Only change if it's different from the initial theme set in index.html
+            // This prevents a double load if initial matches stored
+            if (storedPath !== currentPath) {
+                changeTheme(`themes/${currentPath}/theme.css`, `themes/${storedPath}/theme.css`, 'theme-link', () => {});
+                setCurrentPath(storedPath);
+            }
+        } else {
+            localStorage.setItem('app-theme-path', currentPath);
+        }
 
+    }, [changeTheme, currentPath]);
 
     
     const applyTheme = () => {

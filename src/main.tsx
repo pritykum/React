@@ -6,11 +6,11 @@ import {PrimeReactProvider} from "primereact/api"
 import {HashRouter} from "react-router-dom";
 
 // Apply saved theme immediately on page load to avoid FOUC
-const savedTheme = localStorage.getItem('app-theme-path') || 'nokia-light';
-const themeLink = document.getElementById('theme-link');
-if (themeLink) {
-  themeLink.setAttribute('href', `themes/${savedTheme}/theme.css`);
-}
+// const savedTheme = localStorage.getItem('app-theme-path') || 'nokia-light';
+// const themeLink = document.getElementById('theme-link');
+// if (themeLink) {
+//   themeLink.setAttribute('href', `themes/${savedTheme}/theme.css`);
+// }
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

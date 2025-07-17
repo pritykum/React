@@ -17,13 +17,13 @@ class ApiService {
     //   Fetch list of available site names.
      
     async getSiteList(): Promise<string[]> {
-        const response = await this.api.get('/api/sites');
+        const response = await this.api.get('/sites');
         return response.data.site_list;
     }
 
  async getConfig(): Promise<{ endpoint_addon: string }> {
     try {
-        const res = await this.api.get('/api/get_config');
+        const res = await this.api.get('/get_config');
         return res.data;
     } catch (error) {
         console.error("Error fetching config:", error);
@@ -69,7 +69,7 @@ class ApiService {
     });
 
     try {
-      const response = await this.api.get('/neighborAudit/ltetonr', { params });
+      const response = await this.api.get('/neighborAudit/lteTonr', { params });
       return response.data;
     } catch (error) {
       console.error('Error fetching LTE-to-NR audit:', error);

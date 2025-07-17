@@ -1,11 +1,11 @@
 import React, { useState, useEffect }from 'react';
-import axios from 'axios';
 import './NeighborModule.scss';
 import { AutoComplete } from 'primereact/autocomplete';
 import LTEtoLTE from "../components/Shared/KairosGroups/LTEtoLTE";
 import NRtoNR from "../components/Shared/KairosGroups/NRtoNR";
 import LTEtoNR from "../components/Shared/KairosGroups/LTEtoNR";
 import LookAndFeelSidebar from "../components/Utilities/LookAndFeelSidebar";
+import { apiService } from '../api/ApiService';
 
 
 
@@ -26,20 +26,25 @@ const [isLoading, setIsLoading] = useState<boolean>(false);
 const [submittedSite, setSubmittedSite] = useState<string>('');
 const [submittedDate, setSubmittedDate] = useState<string>('');
 const [submitted, setSubmitted] = useState<boolean>(false);
-const [apiPrefix, setApiPrefix] = useState<string>(''); 
+// const [setApiPrefix, setApiPrefix] = useState<string>(''); 
 
   // Example static site list — replace with API results if needed
 // const siteList = ['4BGS014A', '5TC0614A', '5TC0702A', '7NYR098B', '8LKA123A'];
 
- useEffect(() => {
-    axios.get('/api/sites')
-      .then((res) => {
-        const sites = res.data.site_list;
-        setSiteList(sites);
-      })
-      .catch((err) => {
-        console.error("Error fetching site list: ", err.message);
-      });
+//  useEffect(() => {
+//     axios.get('/api/sites')
+//       .then((res) => {
+//         const sites = res.data.site_list;
+//         setSiteList(sites);
+//       })
+//       .catch((err) => {
+//         console.error("Error fetching site list: ", err.message);
+//       });
+//   }, []);
+  useEffect(() => {
+    apiService.getSiteList()
+      .then((sites) => setSiteList(sites))
+      .catch((err) => console.error('Error fetching site list: ', err));
   }, []);
 
   // useEffect(() => {
@@ -51,18 +56,18 @@ const [apiPrefix, setApiPrefix] = useState<string>('');
   //       console.error("Error fetching config:", err.message);
   //     });
   // }, []);
-  useEffect(() => {
-  axios.get('/api/get_config')
-    .then((res) => {
-      // prepend host + port for local dev
-      const basePath = res.data.endpoint_addon || '';
-      const backendHost = 'http://localhost:5000';  // or from environment variable
-      setApiPrefix(`${backendHost}${basePath}`);
-    })
-    .catch((err) => {
-      console.error("Error fetching config:", err.message);
-    });
-}, []);
+//   useEffect(() => {
+//   axios.get('/api/get_config')
+//     .then((res) => {
+//       // prepend host + port for local dev
+//       const basePath = res.data.endpoint_addon || '';
+//       const backendHost = 'http://localhost:5000';  // or from environment variable
+//       setApiPrefix(`${backendHost}${basePath}`);
+//     })
+//     .catch((err) => {
+//       console.error("Error fetching config:", err.message);
+//     });
+// }, []);
 
 
   const searchSite = (event: { query: string }) => {
@@ -75,37 +80,24 @@ const [apiPrefix, setApiPrefix] = useState<string>('');
     if (!siteName || !date) {
       alert('Please enter both Site and Date values.');
       return;
+      
     }
+    
 
     setIsLoading(true);
     setSubmitted(false);
 
     try {
       const [res5g5g, res4g5g, res4g4g] = await Promise.all([
-        axios.get(`${apiPrefix}/api/neighborAudit/nrTonr`, {
-          params: { selected_site: siteName, raml_date: date },
-        }),
-        axios.get(`${apiPrefix}/api/neighborAudit/lteTonr`, {
-          params: { selected_site: siteName, raml_date: date },
-        }),
-        axios.get(`${apiPrefix}/api/neighborAudit/ltetolte`, {
-          params: { selected_site: siteName, raml_date: date },
-        }),
-      ]);
+      apiService.getNrToNrAudit(siteName, date),
+      apiService.getLteToNrAudit(siteName, date),
+    apiService.getLteToLteAudit(siteName, date),
+]);
    
       setTabHtml({
-        '5G-5G': {
-          columns: res5g5g.data.columns || [],
-          data: res5g5g.data.data || [],
-        },
-        '4G-5G': {
-          columns: res4g5g.data.columns || [],
-          data: res4g5g.data.data || [],
-        },
-        '4G-4G': {
-          columns: res4g4g.data.columns || [],
-          data: res4g4g.data.data || [],
-        },
+        '5G-5G': res5g5g,
+        '4G-5G': res4g5g,
+        '4G-4G': res4g4g,
       });
 
       setSubmittedSite(siteName);
@@ -148,7 +140,7 @@ const [apiPrefix, setApiPrefix] = useState<string>('');
           CM & PM Date: <strong>{new Date(date).toLocaleDateString()}</strong>
         </span>
         <div className="theme-toggle-container">
-          <LookAndFeelSidebar side="right" />
+          <LookAndFeelSidebar side='right'/>
         </div>
         
       </div>
